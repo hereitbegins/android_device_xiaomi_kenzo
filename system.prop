@@ -1,15 +1,15 @@
 # Audio
-audio.offload.disable=1
-audio.offload.pcm.16bit.enable=false
-audio.offload.pcm.24bit.enable=false
-audio.offload.video=false
+audio.offload.disable=false
+audio.offload.pcm.16bit.enable=true
+audio.offload.pcm.24bit.enable=true
+audio.offload.video=true
 persist.audio.fluence.audiorec=false
 persist.audio.fluence.spk.mono=true
 persist.audio.fluence.voicerec=true
 voice.voip.conc.disabled=true
 
 # Camera
-media.camera.ts.monotonic=1
+media.camera.time.monotonic=1
 persist.camera.HAL3.enabled=1
 
 # Radio
