@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2015, The Linux Foundataion. All rights reserved.
+/* Copyright (c) 2012-2016, The Linux Foundataion. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -33,8 +33,12 @@
 #include <hardware/camera.h>
 #include <utils/Mutex.h>
 #include <utils/List.h>
-#include <qdMetaData.h>
 #include <utils/Timers.h>
+
+//Media depedancies
+#include "OMX_QCOMExtns.h"
+//Display dependencies
+#include <qdMetaData.h>
 
 extern "C" {
 #include <sys/types.h>
@@ -44,6 +48,15 @@ extern "C" {
 
 //OFFSET, SIZE, USAGE, TIMESTAMP, FORMAT
 #define VIDEO_METADATA_NUM_INTS 5
+
+#ifdef USE_MEDIA_EXTENSIONS
+//Note that this macro might have already been
+//defined in OMX_QCOMExtns.h, in which case
+//the local value below will not be used.
+#ifndef VIDEO_METADATA_NUM_COMMON_INTS
+#define VIDEO_METADATA_NUM_COMMON_INTS   1
+#endif
+#endif
 
 namespace qcamera {
 
@@ -220,10 +233,18 @@ public:
     int convCamtoOMXFormat(cam_format_t format);
     int getUsage(){return mUsage;};
     int getFormat(){return mFormat;};
+#ifdef USE_MEDIA_EXTENSIONS
+    native_handle_t *getNativeHandle(uint32_t index, bool metadata = true);
+    static int closeNativeHandle(const void *data);
+    int closeNativeHandle(const void *data, bool metadata);
+#endif
 private:
     camera_memory_t *mMetadata[MM_CAMERA_MAX_NUM_FRAMES];
     uint8_t mMetaBufCount;
     int mUsage, mFormat;
+#ifdef USE_MEDIA_EXTENSIONS
+    native_handle_t *mNativeHandle[MM_CAMERA_MAX_NUM_FRAMES];
+#endif
 };
 
 
@@ -250,7 +271,7 @@ public:
     virtual uint8_t getMappable() const;
 
     void setWindowInfo(preview_stream_ops_t *window, int width, int height,
-        int stride, int scanline, int format, int maxFPS, int usage = 0);
+        int stride, int scanline, int format, int maxFPS, int usage = 0, int backendFormat = 0);
     // Enqueue/display buffer[index] onto the native window,
     // and dequeue one buffer from it.
     // Returns the buffer index of the dequeued buffer.
@@ -264,7 +285,7 @@ private:
     int mLocalFlag[MM_CAMERA_MAX_NUM_FRAMES];
     struct private_handle_t *mPrivateHandle[MM_CAMERA_MAX_NUM_FRAMES];
     preview_stream_ops_t *mWindow;
-    int mWidth, mHeight, mFormat, mStride, mScanline, mUsage, mMaxFPS;
+    int mWidth, mHeight, mDisplayFormat, mStride, mScanline, mUsage, mMaxFPS, mCamFormat;
     camera_request_memory mGetMemory;
     camera_memory_t *mCameraMemory[MM_CAMERA_MAX_NUM_FRAMES];
     int mMinUndequeuedBuffers;
