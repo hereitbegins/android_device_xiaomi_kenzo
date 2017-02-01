@@ -31,6 +31,8 @@ BOARD_USERDATAIMAGE_PARTITION_SIZE := 26838785024 # 26838801408 - 16384
 
 # Kernel
 TARGET_KERNEL_CONFIG := lineageos_kenzo_defconfig
+BOARD_KERNEL_CMDLINE += \
+    androidboot.verifiedbootstate=green
 
 # Properties
 TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
